@@ -2,72 +2,42 @@ pipeline{
     agent any 
     environment{
         VERSION = "${env.BUILD_ID}"
+        DOCKERHUB = credentials('Dockerhub')
     }
+    
+    tools {
+        gradle 'Gradle'
+    }
+    
     stages{
-        stage("sonar quality check"){
-            agent {
-                docker {
-                    image 'openjdk:11'
-                }
-            }
-            steps{
-                script{
-                    withSonarQubeEnv(credentialsId: 'sonar-token') {
-                            sh 'chmod +x gradlew'
-                            sh './gradlew sonarqube'
-                    }
 
-                    timeout(time: 1, unit: 'HOURS') {
-                      def qg = waitForQualityGate()
-                      if (qg.status != 'OK') {
-                           error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                      }
-                    }
+        stage('Checkout') {
+            steps {
+                echo "Checkout the code from GitLab repo..."
+                checkout scm
+            }
+        }
 
-                }  
-            }
-        }
-        stage("docker build & docker push"){
-            steps{
-                script{
-                    withCredentials([string(credentialsId: 'docker_pass', variable: 'docker_password')]) {
-                             sh '''
-                                docker build -t 34.125.214.226:8083/springapp:${VERSION} .
-                                docker login -u admin -p $docker_password 34.125.214.226:8083 
-                                docker push  34.125.214.226:8083/springapp:${VERSION}
-                                docker rmi 34.125.214.226:8083/springapp:${VERSION}
-                            '''
-                    }
+        stage('Build') {
+            steps {
+                echo "Building the docker file..."
+                sshagent(['dev']) {
+                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "export PATH=$PATH:/opt/gradle/gradle-7.1.1/bin && cd /home/testing/CICD_Java_gradle_application && docker build -t k8-gradleapp:${VERSION} . && docker tag k8-gradleapp:${VERSION} pritidevops/k8-gradleapp:${VERSION}"'
                 }
             }
         }
-        stage('indentifying misconfigs using datree in helm charts'){
-            steps{
-                script{
 
-                    dir('kubernetes/') {
-                        withEnv(['DATREE_TOKEN=GJdx2cP2TCDyUY3EhQKgTc']) {
-                              sh 'helm datree test myapp/'
-                        }
-                    }
+        stage('Publishing Images to Dockerhub') {
+            steps {
+                echo "Pushing the image created to Dockerhub..."
+                sshagent(['dev']) {
+                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-app:${VERSION} && docker rmi -f k8-app:${VERSION} && docker rmi -f pritidevops/k8-app:${VERSION}"'
                 }
             }
         }
-        stage("pushing the helm charts to nexus"){
-            steps{
-                script{
-                    withCredentials([string(credentialsId: 'docker_pass', variable: 'docker_password')]) {
-                          dir('kubernetes/') {
-                             sh '''
-                                 helmversion=$( helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
-                                 tar -czvf  myapp-${helmversion}.tgz myapp/
-                                 curl -u admin:$docker_password http://34.125.214.226:8081/repository/helm-hosted/ --upload-file myapp-${helmversion}.tgz -v
-                            '''
-                          }
-                    }
-                }
-            }
-        }
+
+
+
         stage('manual approval'){
             steps{
                 script{
