@@ -51,29 +51,14 @@ pipeline{
         stage('Deploying application on k8s cluster') {
             steps {
                script{
-                   withCredentials([kubeconfigFile(credentialsId: 'kubernetes-config', variable: 'KUBECONFIG')]) {
-                        dir('kubernetes/') {
-                          sh 'helm upgrade --install --set image.repository="34.125.214.226:8083/springapp" --set image.tag="${VERSION}" myjavaapp myapp/ ' 
+                   withCredentials([kubeconfigFile(credentialsId: 'k8-config', variable: 'KUBECONFIG')]) {
+			   sshagent(['k8-config']) {
+                          	sh 'ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 "cd CICD_Java_gradle_application/kubernetes && helm upgrade --install --set image.repository="pritidevops/k8-gradleapp" --set image.tag="${VERSION}" gradlejavaapp myapp/ "' 
                         }
-                    }
+                  }
                }
             }
         }
-        stage('verifying app deployment'){
-            steps{
-                script{
-                     withCredentials([kubeconfigFile(credentialsId: 'kubernetes-config', variable: 'KUBECONFIG')]) {
-                         sh 'kubectl run curl --image=curlimages/curl -i --rm --restart=Never -- curl myjavaapp-myapp:8080'
-
-                     }
-                }
-            }
         }
     }
 
-    post {
-		always {
-			mail bcc: '', body: "<br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "${currentBuild.result} CI: Project name -> ${env.JOB_NAME}", to: "deekshith.snsep@gmail.com";  
-		 }
-	   }
-}
