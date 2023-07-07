@@ -26,8 +26,8 @@ pipeline{
                         ssh -o StrictHostKeyChecking=no testing@192.168.6.99 << EOF
                         export PATH=$PATH:/opt/gradle/gradle-7.1.1/bin
                         cd /home/testing/CICD_Java_gradle_application
-                        docker build -t k8-gradleapp:${VERSION} .
-                        docker tag k8-gradleapp:${VERSION} pritidevops/k8-gradleapp:${VERSION}
+                        docker build -t k8-gradleapp:latest .
+                        docker tag k8-gradleapp:latest pritidevops/k8-gradleapp:latest
 EOF
                     '''
                 }
@@ -39,7 +39,7 @@ EOF
             steps {
                 echo "Pushing the image created to Dockerhub..."
                 sshagent(['dev']) {
-                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-gradleapp:${VERSION} && docker rmi -f k8-gradleapp:${VERSION} && docker rmi -f pritidevops/k8-gradleapp:${VERSION}"'
+                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-gradleapp:latest && docker rmi -f k8-gradleapp:latest && docker rmi -f pritidevops/k8-gradleapp:latest"'
                 }
             }
         }
@@ -62,7 +62,7 @@ EOF
             steps {
                 script {
                     withCredentials([string(credentialsId: 'k8-config')]) {
-                        sh "ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 \"cd CICD_Java_gradle_application/kubernetes && helm upgrade --install --set image.repository='pritidevops/k8-gradleapp' --set image.tag='${VERSION}' gradlejavaapp myapp/\""
+                        sh "ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 \"cd CICD_Java_gradle_application/kubernetes && helm upgrade --install --set image.repository='pritidevops/k8-gradleapp' gradlejavaapp myapp/\""
                     }
                 }
             }
