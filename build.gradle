@@ -3,7 +3,6 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 	id 'war'
-	id 'org.sonarqube' version '3.3'
 }
 
 group = 'com.example'
@@ -25,10 +24,3 @@ test {
 	useJUnitPlatform()
 }
 
-
-sonarqube {
-    properties {
-        property 'sonar.host.url', 'http://34.125.75.197:9000'
-        property 'sonar.login', '******'
-    }
-}
