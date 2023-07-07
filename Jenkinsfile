@@ -20,7 +20,7 @@ pipeline{
         stage('Build') {
             steps {
                 echo "Building the docker file..."
-                withCredentials([string(credentialsId: 'dockerhub')]){
+                withCredentials([string(credentialsId: 'Dockerhub')]){
                     sshagent(['dev']) {
                         sh '''
                             ssh -o StrictHostKeyChecking=no testing@192.168.6.99 << EOF
