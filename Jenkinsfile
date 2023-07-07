@@ -39,7 +39,7 @@ EOF
             steps {
                 echo "Pushing the image created to Dockerhub..."
                 sshagent(['dev']) {
-                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-app:${VERSION} && docker rmi -f k8-app:${VERSION} && docker rmi -f pritidevops/k8-app:${VERSION}"'
+                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-gradleapp:${VERSION} && docker rmi -f k8-gradleapp:${VERSION} && docker rmi -f pritidevops/k8-gradleapp:${VERSION}"'
                 }
             }
         }
