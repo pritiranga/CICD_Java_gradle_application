@@ -11,12 +11,12 @@ pipeline{
     
     stages{
 
-        stage('Checkout') {
+    /* */    stage('Checkout') {
             steps {
                 echo "Checkout the code from GitLab repo..."
                 checkout scm
             }
-        }
+        }*/
 
         stage('Build') {
             steps {
