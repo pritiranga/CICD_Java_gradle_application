@@ -23,7 +23,7 @@ pipeline{
                 withCredentials([usernamePassword(credentialsId: 'Dockerhub', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]){
                     sshagent(['dev']) {
                         sh '''
-                            ssh -o StrictHostKeyChecking=no testing@192.168.6.99 << EOF
+                            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null testing@192.168.6.99 << EOF
                             export PATH=$PATH:/opt/gradle/gradle-7.1.1/bin
                             cd /home/testing/CICD_Java_gradle_application
                             docker build -t k8-gradleapp:latest .
