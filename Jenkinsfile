@@ -61,7 +61,7 @@ EOF
             steps {
                 script {
                     withCredentials([string(credentialsId: 'k8-config')]) {
-                        sh "ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 \"cd CICD_Java_gradle_application/kubernetes && helm upgrade --install --set image.repository='pritidevops/k8-gradleapp' gradlejavaapp myapp/\""
+                        sh "ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 \"cd CICD_Java_gradle_application/kubernetes && helm upgrade --install --set image.repository='pritidevops/k8-gradleapp:latest' gradlejavaapp myapp/\""
                     }
                 }
             }
