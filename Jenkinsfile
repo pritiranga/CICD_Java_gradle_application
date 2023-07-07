@@ -1,7 +1,7 @@
 pipeline{
     agent any 
     environment{
-        DOCKERHUB = credentials('Dockerhub')
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
     } 
     
     tools {
@@ -20,7 +20,7 @@ pipeline{
         stage('Build') {
             steps {
                 echo "Building the docker file..."
-                withCredentials([usernamePassword(credentialsId: 'DOCKERHUB', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]){
+                withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]){
                     sshagent(['dev']) {
                         sh '''
                             ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null testing@192.168.6.99 << EOF
