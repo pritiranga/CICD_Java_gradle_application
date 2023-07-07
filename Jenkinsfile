@@ -1,8 +1,8 @@
 pipeline{
     agent any 
-  /*environment{
+    environment{
         DOCKERHUB = credentials('Dockerhub')
-    } */
+    } 
     
     tools {
         gradle 'Gradle'
@@ -20,7 +20,7 @@ pipeline{
         stage('Build') {
             steps {
                 echo "Building the docker file..."
-                withCredentials([usernamePassword(credentialsId: 'Dockerhub', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]){
+                withCredentials([usernamePassword(credentialsId: 'DOCKERHUB', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]){
                     sshagent(['dev']) {
                         sh '''
                             ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null testing@192.168.6.99 << EOF
@@ -39,8 +39,10 @@ EOF
         stage('Publishing Images to Dockerhub') {
             steps {
                 echo "Pushing the image created to Dockerhub..."
-                sshagent(['dev']) {
-                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-gradleapp:latest && docker rmi -f k8-gradleapp:latest && docker rmi -f pritidevops/k8-gradleapp:latest"'
+                withCredentials([usernamePassword(credentialsId: 'DOCKERHUB', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]){
+                    sshagent(['dev']) {
+                        sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-gradleapp:latest && docker rmi -f k8-gradleapp:latest && docker rmi -f pritidevops/k8-gradleapp:latest"'
+                    }
                 }
             }
         }
