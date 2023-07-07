@@ -11,21 +11,29 @@ pipeline{
     
     stages{
 
-    /* */    stage('Checkout') {
+        stage('Checkout') {
             steps {
                 echo "Checkout the code from GitLab repo..."
                 checkout scm
             }
-        }*/
+        }
 
         stage('Build') {
             steps {
                 echo "Building the docker file..."
                 sshagent(['dev']) {
-                    sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "export PATH=$PATH:/opt/gradle/gradle-7.1.1/bin && cd /home/testing/CICD_Java_gradle_application && docker build -t k8-gradleapp:${VERSION} . && docker tag k8-gradleapp:${VERSION} pritidevops/k8-gradleapp:${VERSION}"'
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no testing@192.168.6.99 << EOF
+                        export PATH=$PATH:/opt/gradle/gradle-7.1.1/bin
+                        cd /home/testing/CICD_Java_gradle_application
+                        docker build -t k8-gradleapp:${VERSION} .
+                        docker tag k8-gradleapp:${VERSION} pritidevops/k8-gradleapp:${VERSION}
+                        EOF
+                    '''
                 }
             }
         }
+
 
         stage('Publishing Images to Dockerhub') {
             steps {
