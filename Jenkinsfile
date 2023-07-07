@@ -28,7 +28,7 @@ pipeline{
                         cd /home/testing/CICD_Java_gradle_application
                         docker build -t k8-gradleapp:${VERSION} .
                         docker tag k8-gradleapp:${VERSION} pritidevops/k8-gradleapp:${VERSION}
-                        EOF
+EOF
                     '''
                 }
             }
