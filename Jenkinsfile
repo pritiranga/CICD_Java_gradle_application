@@ -54,7 +54,6 @@ pipeline{
                    withCredentials([kubeconfigFile(credentialsId: 'k8-config', variable: 'KUBECONFIG')]) {
 			   sshagent(['k8-config']) {
                           	sh 'ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 "cd CICD_Java_gradle_application/kubernetes && helm upgrade --install --set image.repository="pritidevops/k8-gradleapp" --set image.tag="${VERSION}" gradlejavaapp myapp/ "' 
-                            echo 'HI'
                         }
                   }
                }
