@@ -51,29 +51,23 @@ EOF
             }
         }
 
-
-
-        stage('manual approval'){
-            steps{              
-                script {
-                    timeout(time: 10, unit: 'MINUTES'){
-                        input ('Deploy to Production?')
-                    }
-                } 
-
-            }
-        }
-        
-        
         stage('Deploying application on k8s cluster') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'k8-config')]) {
-                        sh "ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 \"cd CICD_Java_gradle_application/kubernetes && helm upgrade --install --set image.repository='pritidevops/k8-gradleapp:latest' gradlejavaapp myapp/\""
+                    withCredentials([file(credentialsId: 'k8-config', variable: 'K8_CONFIG')]) {
+                        sh """
+                            echo '\$K8_CONFIG' > kubeconfig
+                            chmod 600 kubeconfig
+                            export KUBECONFIG=\$PWD/kubeconfig
+
+                            cd CICD_Java_gradle_application/kubernetes
+                            helm upgrade --install --set image.repository='pritidevops/k8-gradleapp:latest' gradlejavaapp myapp/
+                        """
                     }
                 }
             }
         }
+
         
         
     }
