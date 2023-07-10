@@ -38,10 +38,15 @@ EOF
         stage('Publishing Images to Dockerhub') {
             steps {
                 echo "Pushing the image created to Dockerhub..."
-                withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]){
-                    sshagent(['dev']) {
-                        sh 'ssh -o StrictHostKeyChecking=no testing@192.168.6.99 "echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin && docker push pritidevops/k8-gradleapp:latest && docker rmi -f k8-gradleapp:latest && docker rmi -f pritidevops/k8-gradleapp:latest"'
-                    }
+                sshagent(['dev']) {                        
+                    sh ''' 
+                        ssh -o StrictHostKeyChecking=no testing@192.168.6.99 <<EOF 
+                        echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin 
+                        docker push pritidevops/k8-gradleapp:latest 
+                        docker rmi -f k8-gradleapp:latest 
+                        docker rmi -f pritidevops/k8-gradleapp:latest
+EOF
+                    '''
                 }
             }
         }
