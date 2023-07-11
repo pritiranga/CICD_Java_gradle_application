@@ -54,7 +54,7 @@ EOF
         stage('Deploying application on k8s cluster') {
             steps {
                 script {
-                    sshagent(['k8-config']){
+                    sshagent(['k8-cluster']){
                         withCredentials([string(credentialsId: 'k8-config')]) {
                             sh """
                                 ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 <<EOF
