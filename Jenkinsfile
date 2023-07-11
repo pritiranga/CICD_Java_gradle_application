@@ -59,8 +59,7 @@ EOF
                                 ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 <<EOF
                                 cd CICD_Java_gradle_application/kubernetes
                                 helm package myapp
-                                helm install priti myapp/*.tgz
-                                
+                                helm install priti myapp/myapp-0.3.0.tgz                                
                       """
                         
                     }
