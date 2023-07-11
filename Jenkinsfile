@@ -54,17 +54,13 @@ EOF
         stage('Deploying application on k8s cluster') {
             steps {
                 script {
-                    sshagent(['k8-cluster']){
-                        withCredentials([string(credentialsId: 'k8-config')]) {
+                    sshagent(['k8']){
+                        withCredentials([string(credentialsId: 'k8')]) {
                             sh """
                                 ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 <<EOF
-                                echo '\$k8-config' > kubeconfig
-                                chmod 600 kubeconfig
-                                export KUBECONFIG=\$PWD/kubeconfig
-
                                 cd CICD_Java_gradle_application/kubernetes
                                 helm upgrade --install --set image.repository='pritidevops/k8-gradleapp:latest' gradlejavaapp myapp/
-    EOF                        """
+EOF                        """
                         }
                     }
                 }
