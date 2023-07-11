@@ -54,9 +54,9 @@ EOF
         stage('Deploying application on k8s cluster') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'k8-config', variable: 'K8_CONFIG')]) {
+                    withCredentials([string(credentialsId: 'k8-config')]) {
                         sh """
-                            echo '\$K8_CONFIG' > kubeconfig
+                            echo '\$k8-config' > kubeconfig
                             chmod 600 kubeconfig
                             export KUBECONFIG=\$PWD/kubeconfig
 
@@ -67,6 +67,7 @@ EOF
                 }
             }
         }
+
 
         
         
