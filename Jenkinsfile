@@ -58,7 +58,7 @@ EOF
                                 ssh -o StrictHostKeyChecking=no devsecops1@192.168.6.77 <<EOF
                                 cd CICD_Java_gradle_application/kubernetes/myapp
                                 helm package myapp
-                                helm upgrade install gradleapp myapp-0.3.0.tgz                                
+                                helm upgrade --install gradleapp myapp-0.3.0.tgz                                
                       """
                         
                     }
